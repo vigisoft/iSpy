@@ -164,7 +164,11 @@ namespace iSpyApplication.Sources.Audio
 
                 audio_stream_index = ret;
 
-                _audioCodecContext = fmt_ctx->streams[audio_stream_index]->codec;
+                if (ffmpeg.avcodec_parameters_to_context(_audioCodecContext, fmt_ctx->streams[audio_stream_index]->codecpar) < 0)
+                {
+                    throw new ApplicationException("Failed to get audio codec parameters.");
+                }
+                
                 _audioStream = fmt_ctx->streams[audio_stream_index];
 
                 fmt_ctx->flags |= ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT;

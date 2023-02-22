@@ -483,13 +483,17 @@ namespace iSpyApplication.Sources.Video
 
 
             for (var i = 0; i < _formatContext->nb_streams; i++)
-                if (_formatContext->streams[i]->codec->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO)
+            {
+                if (ffmpeg.avcodec_parameters_to_context(_videoCodecContext, _formatContext->streams[i]->codecpar) >= 0)
                 {
-                    // get the pointer to the codec context for the video stream
-                    _videoCodecContext = _formatContext->streams[i]->codec;
-                    _videoStream = _formatContext->streams[i];
-                    break;
-                }
+                    if (_formatContext->streams[i]->codecpar->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO)
+                    {
+                        // get the pointer to the codec context for the video stream                        
+                        _videoStream = _formatContext->streams[i];
+                        break;
+                    }
+                }  
+            }
 
             if (_videoStream != null)
             {
@@ -520,12 +524,16 @@ namespace iSpyApplication.Sources.Video
             _lastPacket = DateTime.UtcNow;
 
             for (var i = 0; i < _formatContext->nb_streams; i++)
-                if (_formatContext->streams[i]->codec->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
+            {
+                if (ffmpeg.avcodec_parameters_to_context(_audioCodecContext, _formatContext->streams[i]->codecpar) >= 0)
                 {
-                    _audioCodecContext = _formatContext->streams[i]->codec;
-                    _audioStream = _formatContext->streams[i];
-                    break;
+                    if (_formatContext->streams[i]->codecpar->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
+                    {                        
+                        _audioStream = _formatContext->streams[i];
+                        break;
+                    }
                 }
+            }
 
             if (_audioStream != null)
             {
@@ -826,17 +834,19 @@ namespace iSpyApplication.Sources.Video
                         {
                             var stream = _formatContext->streams[i];
 
-                            if (stream != null && stream->codec != null && stream->codec->codec != null)
+                            if (stream != null)
                             {
-                                stream->discard = AVDiscard.AVDISCARD_ALL;
-                                ffmpeg.avcodec_close(stream->codec);
+                                stream->discard = AVDiscard.AVDISCARD_ALL;                                                                
                             }
                         }
                     }
+
                     fixed (AVFormatContext** f = &_formatContext)
                     {
-                        ffmpeg.avformat_close_input(f);
+                        ffmpeg.avformat_close_input(f);                     
                     }
+
+                    ffmpeg.avformat_free_context(_formatContext);
 
                     _formatContext = null;
                 }
