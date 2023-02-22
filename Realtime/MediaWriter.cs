@@ -294,8 +294,8 @@ namespace iSpyApplication.Realtime
                     var j = (int) _formatContext->nb_streams;
                     for (var i = j - 1; i >= 0; i--)
                     {
-                        var stream = _formatContext->streams[i];
-                        if (stream != null && stream->codec != null)
+                        var stream = _formatContext->streams[i];                        
+                        if (stream != null)
                         {
                             if (stream->codecpar != null && stream->codecpar->extradata_size > 0)
                                 ffmpeg.av_free(stream->codecpar->extradata);
