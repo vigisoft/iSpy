@@ -56,8 +56,8 @@ namespace iSpyApplication.Utilities
             }
             catch (Exception ex)
             {
-                Logger.LogError("Couldn't find VLC");
-                VlcHelper.VLCLocationAutoDetect = null;
+                Logger.LogError("Couldn't find VLC: " + ex.Message);
+                VLCLocationAutoDetect = null;
                 
             }
             if (VLCLocation != null)
